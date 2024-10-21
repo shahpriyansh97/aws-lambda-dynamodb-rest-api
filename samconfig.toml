@@ -1,0 +1,10 @@
+version = 0.1
+[default.deploy.parameters]
+stack_name = "aws-lambda-dynamodb-grocery-app"
+resolve_s3 = true
+s3_prefix = "aws-lambda-dynamodb-grocery-app"
+region = "us-west-2"
+confirm_changeset = true
+capabilities = "CAPABILITY_IAM"
+parameter_overrides = "FunctionName=\"GroceryManagementFunction\" DynamoDBTableName=\"customerGroceries\" ApiGatewayName=\"GroceryManagementApi\""
+image_repositories = ["GroceryFunction=021891598101.dkr.ecr.us-west-2.amazonaws.com/awslambdadynamodbgroceryapp60bd114b/groceryfunctionecc25f0crepo"]

@@ -1,0 +1,72 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: aws-lambda-dynamodb-grocery-app
+Transform: AWS::Serverless-2016-10-31
+
+Parameters:
+  FunctionName:
+    Type: String
+    Default: GroceryManagementFunction
+  DynamoDBTableName:
+    Type: String
+    Default: customerGroceries
+  ApiGatewayName:
+    Type: String
+    Default: GroceryManagementApi
+
+Resources:
+  GroceryDynamoDBTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Ref DynamoDBTableName
+      AttributeDefinitions:
+        - AttributeName: id
+          AttributeType: S
+      KeySchema:
+        - AttributeName: id
+          KeyType: HASH
+      ProvisionedThroughput:
+        ReadCapacityUnits: 5
+        WriteCapacityUnits: 5
+
+
+  GroceryFunction:
+    Type: AWS::Serverless::Function
+    Metadata:
+      DockerTag: nodejs20.x-v1
+      DockerContext: ./groceryFunction
+      Dockerfile: Dockerfile
+    Properties:
+      PackageType: Image
+      Architectures:
+        - x86_64
+      MemorySize: 128
+      Timeout: 100
+      Description: A simple example includes a HTTP get method to get all items from
+        a DynamoDB table.
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref GroceryDynamoDBTable
+      Environment:
+        Variables:
+          TABLE_NAME: !Ref GroceryDynamoDBTable
+      Events:
+        GetGroceriesById:
+          Type: Api
+          Properties:
+            Path: /groceries/{id}
+            Method: GET
+        CreateGroceries:
+          Type: Api
+          Properties:
+            Path: /groceries
+            Method: POST
+        UpdateGroceriesById:
+          Type: Api
+          Properties:
+            Path: /groceries/{id}
+            Method: PUT
+        DeleteGroceriesById:
+          Type: Api
+          Properties:
+            Path: /groceries/{id}
+            Method: DELETE
